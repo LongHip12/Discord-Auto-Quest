@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lonely Hub — Logs</title>
+{% include '_base_style.html' %}
+<style>
+main{flex:1;padding:28px 20px;max-width:1400px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:16px}
+.log-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.log-toolbar .left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.log-toolbar .right{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-2);color:var(--muted);transition:all .15s;user-select:none}
+.chip:hover{border-color:var(--border-hi);color:var(--text)}
+.chip.active-all{background:rgba(250,80,80,0.12);border-color:rgba(250,80,80,0.3);color:var(--red)}
+.chip.active-info{background:rgba(96,165,250,0.1);border-color:rgba(96,165,250,0.3);color:#60a5fa}
+.chip.active-warning{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.3);color:#fbbf24}
+.chip.active-error{background:rgba(248,113,113,0.1);border-color:rgba(248,113,113,0.3);color:#f87171}
+.log-container{flex:1;background:var(--bg-1);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:400px}
+.log-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg-2)}
+.log-count{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.log-body{flex:1;overflow-y:auto;padding:12px 16px;font-family:var(--mono);font-size:13px;line-height:1.7}
+.log-body::-webkit-scrollbar{width:6px}
+.log-body::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:99px}
+.log-row{display:flex;align-items:baseline;gap:10px;padding:3px 0;border-bottom:1px solid rgba(250,80,80,0.04)}
+.log-row:last-child{border-bottom:none}
+.log-time{font-size:11px;color:var(--dim);flex-shrink:0;min-width:76px}
+.log-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
+.lb-info{background:rgba(96,165,250,0.12);color:#60a5fa}
+.lb-warning{background:rgba(251,191,36,0.12);color:#fbbf24}
+.lb-error{background:rgba(248,113,113,0.12);color:#f87171}
+.log-msg{color:#c8b8b8;word-break:break-word}
+.log-row.lv-warning .log-msg{color:#fbbf24}
+.log-row.lv-error .log-msg{color:#f87171}
+.pause-indicator{display:flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(251,191,36,0.08);border-bottom:1px solid rgba(251,191,36,0.15);font-size:12px;color:#fbbf24;font-weight:600}
+.pause-dot{width:7px;height:7px;border-radius:50%;background:#fbbf24}
+.empty-log{text-align:center;padding:60px 20px;color:var(--dim)}
+.empty-log svg{width:40px;height:40px;stroke:var(--dim);fill:none;stroke-width:1.5;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon"><img src="https://i.imgur.com/xY7M2iE.jpeg" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"></div>
+        <span class="brand-name">Lonely <span>Hub</span></span>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <nav class="nav-pill" id="nav-pill">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logs" class="active">Logs</a>
+        <a href="/accountmanager">Accounts</a>
+        <a href="/settings">Settings</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="log-toolbar">
+      <div class="left">
+        <div class="filter-chips">
+          <span class="chip active-all" data-filter="all">All</span>
+          <span class="chip" data-filter="info">Info</span>
+          <span class="chip" data-filter="warning">Warning</span>
+          <span class="chip" data-filter="error">Error</span>
+        </div>
+      </div>
+      <div class="right">
+        <button class="btn btn-ghost btn-sm" id="btn-pause">
+          <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          Pause
+        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-refresh">
+          <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+          Refresh
+        </button>
+        <button class="btn btn-danger btn-sm" id="btn-clear">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <div class="log-container">
+      <div class="log-header">
+        <div class="log-count" id="log-count">0 entries</div>
+        <span class="badge badge-muted" id="status-badge">
+          <span class="dot-pulse"></span>
+          <span id="status-label">Idle</span>
+        </span>
+      </div>
+      <div id="pause-bar" class="pause-indicator" style="display:none">
+        <span class="pause-dot"></span>
+        Log stream paused — click Resume to continue
+      </div>
+      <div class="log-body" id="log-body">
+        <div class="empty-log">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <p>No logs yet. Start a quest to see activity here.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-host" class="toast-host"></div>
+{% include '_base_js.html' %}
+<script>
+let filter = 'all', paused = false, allLogs = [], lastHash = '';
+
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(d) { return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+
+function renderLogs() {
+  const body = document.getElementById('log-body');
+  const shown = filter === 'all' ? allLogs : allLogs.filter(l => (l.level || 'info') === filter);
+  document.getElementById('log-count').textContent = shown.length + ' entr' + (shown.length === 1 ? 'y' : 'ies');
+  if (!shown.length) {
+    body.innerHTML = '<div class="empty-log"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><p>No entries match this filter.</p></div>';
+    return;
+  }
+  const wasBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 20;
+  body.innerHTML = shown.map((l, i) => {
+    const lvl = l.level || 'info';
+    const t = l._t ? fmt(new Date(l._t)) : '--:--:--';
+    return `<div class="log-row lv-${lvl}"><span class="log-time">${t}</span><span class="log-badge lb-${lvl}">${lvl}</span><span class="log-msg">${escHtml(l.msg)}</span></div>`;
+  }).join('');
+  if (wasBottom) body.scrollTop = body.scrollHeight;
+}
+
+async function fetchLogs(force) {
+  try {
+    const j = await (await fetch('/status')).json();
+    const running = !!j.running;
+    document.getElementById('status-badge').className = 'badge ' + (running ? 'badge-green' : 'badge-muted');
+    document.getElementById('status-label').textContent = running ? 'Running' : 'Idle';
+    document.getElementById('pause-bar').style.display = j.log_paused ? 'flex' : 'none';
+    paused = !!j.log_paused;
+    updatePauseBtn();
+    const logs = (j.logs || []).map((l, i) => typeof l === 'object' ? { ...l, _t: l._t || Date.now() - (j.logs.length - i) * 800 } : { msg: l, level: 'info', _t: Date.now() });
+    const h = JSON.stringify(logs.length + (logs[logs.length-1]?.msg || ''));
+    if (h !== lastHash || force) { allLogs = logs; lastHash = h; renderLogs(); }
+  } catch(e) {}
+}
+
+function updatePauseBtn() {
+  const btn = document.getElementById('btn-pause');
+  if (paused) {
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round"><polygon points="5 3 19 12 5 21 5 3"/></svg> Resume';
+  } else {
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
+  }
+}
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    filter = c.dataset.filter;
+    document.querySelectorAll('.chip').forEach(x => { x.className = 'chip'; });
+    c.classList.add('active-' + filter);
+    renderLogs();
+  });
+});
+
+document.getElementById('btn-refresh').addEventListener('click', () => { fetchLogs(true); window.toast('Logs refreshed', 'info'); });
+
+document.getElementById('btn-pause').addEventListener('click', async () => {
+  const ep = paused ? '/api/logs/resume' : '/api/logs/pause';
+  await fetch(ep, { method: 'POST' });
+  await fetchLogs(true);
+  window.toast(paused ? 'Log stream resumed' : 'Log stream paused', 'warning');
+});
+
+document.getElementById('btn-clear').addEventListener('click', async () => {
+  if (!confirm('Clear all logs?')) return;
+  await fetch('/api/logs/clear', { method: 'POST' });
+  allLogs = []; lastHash = ''; renderLogs();
+  window.toast('Logs cleared', 'success');
+});
+
+setInterval(() => fetchLogs(false), 10000);
+fetchLogs(true);
+</script>
+</body>
+</html>
