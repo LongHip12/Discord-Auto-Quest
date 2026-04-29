@@ -1,0 +1,55 @@
+<script>
+/* ── RIPPLE ── */
+document.addEventListener('pointerdown', function(e) {
+  const el = e.target.closest('.btn,.btn-menu,.nav-pill a,.acc-item,.stat-card');
+  if (!el || el.disabled) return;
+  /* for acc-item, only ripple if the click is directly on the item (not on a child button) */
+  if (el.classList.contains('acc-item') && e.target.closest('.btn-menu,.acc-dropdown,.btn')) return;
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  const rect = el.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 1.4;
+  r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+  el.appendChild(r);
+  r.addEventListener('animationend', () => r.remove());
+});
+
+/* ── TOAST ── */
+const ICONS = {
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+};
+window.toast = function(msg, type, title) {
+  type = type || 'info';
+  const host = document.getElementById('toast-host') || (() => { const h = document.createElement('div'); h.id = 'toast-host'; h.className = 'toast-host'; document.body.appendChild(h); return h; })();
+  const titles = { info: 'Info', success: 'Success', warning: 'Warning', error: 'Error' };
+  const t = document.createElement('div');
+  t.className = `toast t-${type}`;
+  t.innerHTML = `<div class="toast-icon">${ICONS[type] || ICONS.info}</div><div class="toast-body"><div class="toast-title"></div><div class="toast-msg"></div></div><div class="toast-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>`;
+  t.querySelector('.toast-title').textContent = title || titles[type];
+  t.querySelector('.toast-msg').textContent = msg;
+  host.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('in')));
+  const dismiss = () => { t.classList.remove('in'); t.classList.add('out'); setTimeout(() => t.remove(), 280); };
+  t.querySelector('.toast-close').addEventListener('click', dismiss);
+  setTimeout(dismiss, 5000);
+};
+
+/* ── NAV TOGGLE (mobile) ── */
+document.addEventListener('DOMContentLoaded', function() {
+  const toggle = document.getElementById('nav-toggle');
+  const pill = document.getElementById('nav-pill');
+  if (toggle && pill) {
+    toggle.addEventListener('click', function() {
+      pill.classList.toggle('open');
+      const isOpen = pill.classList.contains('open');
+      toggle.setAttribute('aria-expanded', isOpen);
+    });
+    document.addEventListener('click', function(e) {
+      if (!toggle.contains(e.target) && !pill.contains(e.target)) pill.classList.remove('open');
+    });
+  }
+});
+</script>
