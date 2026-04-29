@@ -7,105 +7,108 @@
 <h1 align="center">🔮 Lonely Hub — Discord Quest Auto Claim</h1>
 
 <p align="center">
-  <b>Công cụ tự động hoàn thành và nhận thưởng Quest trên Discord</b><br/>
+  <b>A tool to automatically complete and claim Discord Quests</b><br/>
   <i>Auto-complete & auto-claim Discord Quests — fast, silent, and effortless.</i>
 </p>
 
 ---
 
-## ✨ Giới thiệu
+## ✨ Introduction
 
-**Lonely Hub** là một bot discord / web được viết bằng Python, giúp bạn **tự động hoàn thành** các Discord Quest và **nhận thưởng (claim)** mà không cần thao tác thủ công.
+**Lonely Hub** is a Discord bot / web tool written in Python that helps you **automatically complete** Discord Quests and **claim rewards** without manual interaction.
 
-### 🎯 Tính năng chính
+### 🎯 Main Features
 
-| Tính năng | Mô tả |
-|-----------|-------|
-| 🎬 **Auto Watch Video** | Tự động xem video quest với tiến trình giả lập chính xác |
-| 🎮 **Auto Play on Desktop** | Giả lập heartbeat cho quest dạng chơi game trên desktop |
-| 📡 **Auto Stream** | Hỗ trợ quest dạng stream trên desktop |
-| 🕹️ **Auto Play Activity** | Hỗ trợ quest dạng chơi Activity |
-| ⭐ **Auto Claim Rewards** | Tự động nhận thưởng ngay khi hoàn thành quest |
-| 🔮 **Orbs Tracking** | Theo dõi số Orbs trước và sau khi hoàn thành |
-| 📊 **Live Dashboard** | Giao diện CLI real-time hiển thị tiến trình từng quest |
+| Feature | Description |
+|--------|------------|
+| 🎬 **Auto Watch Video** | Automatically watches quest videos with accurate simulated progress |
+| 🎮 **Auto Play on Desktop** | Simulates heartbeat for desktop gameplay quests |
+| 📡 **Auto Stream** | Supports stream-type quests on desktop |
+| 🕹️ **Auto Play Activity** | Supports Discord Activity quests |
+| ⭐ **Auto Claim Rewards** | Automatically claims rewards instantly after completion |
+| 🔮 **Orbs Tracking** | Tracks Orbs before and after completing quests |
+| 📊 **Live Dashboard** | Real-time CLI interface showing quest progress |
 
 ---
 
-## 📋 Yêu cầu hệ thống
+## 📋 System Requirements
 
 - **Python** >= 3.13
-- **Discord User Token** (token tài khoản người dùng)
-- **Discord Bot Token** (token bot discord)
+- **Discord User Token**
+- **Discord Bot Token**
+
 ---
 
-## 🚀 Hướng dẫn cài đặt & sử dụng
+## 🚀 Installation & Usage
 
-### Bước 1: Clone hoặc tải source code
+### Step 1: Clone or download source code
 
 ```bash
 git clone https://github.com/LongHip12/Discord-Auto-Quest.git
 cd Discord-Auto-Quests
 ```
 
-### Bước 2: Cài đặt dependencies
+### Step 2: Install dependencies
 
 ```bash
 pip install requirements.txt
 ```
 
-### Bước 3: Cấu hình Token
+### Step 3: Configure Token
 
-Tạo file `.env` trong thư mục gốc của project với nội dung:
+Create a `.env` file in the root directory:
 
 ```env
 DISCORD_BOT_TOKEN=your_discord_bot_token_here
 ```
 
-> ⚠️ **Lưu ý bảo mật**: Không bao giờ chia sẻ token của bạn cho bất kỳ ai. Token cho phép truy cập toàn bộ tài khoản Discord của bạn.
+> ⚠️ **Security Notice**: Never share your token with anyone. It grants full access to your Discord account.
 
-### Bước 4: Chạy Tool
+### Step 4: Run the tool
 
 ```bash
 python main.py
 ```
 
 ---
-## ❓ Câu hỏi thường gặp (FAQ)
+
+## ❓ FAQ
 
 <details>
-<summary><b>Cách lấy Discord User Token?</b></summary>
+<summary><b>How to get Discord User Token?</b></summary>
 
-1. Mở Discord trên trình duyệt hoặc ứng dụng Desktop
-2. Nhấn `Ctrl + Shift + I` để mở Developer Tools
-3. Chuyển sang tab **Network**
-4. Thực hiện bất kỳ hành động nào trên Discord
-5. Tìm request đến `discord.com/api` và copy giá trị `Authorization` trong Headers
-6. 
-</details>
-
-<details>
-<summary><b>Tool có an toàn không?</b></summary>
-
-Tool hoạt động bằng cách giả lập các request API giống như Discord Client chính thức. Tuy nhiên, việc sử dụng user token tự động có thể vi phạm Terms of Service của Discord. **Sử dụng có rủi ro bị ban tài khoản.**
+1. Open Discord (browser or desktop app)
+2. Press `Ctrl + Shift + I` to open Developer Tools
+3. Go to the **Network** tab
+4. Perform any action on Discord
+5. Find a request to `discord.com/api`
+6. Copy the `Authorization` value from Headers
 
 </details>
 
 <details>
-<summary><b>Tại sao một số quest bị SKIP?</b></summary>
+<summary><b>Is this tool safe?</b></summary>
 
-Một số quest có thể chưa được hỗ trợ hoặc đã hết hạn. Tool chỉ xử lý các quest đang hoạt động và chưa hoàn thành.
+This tool works by simulating API requests similar to the official Discord client. However, using a user token for automation may violate Discord Terms of Service. **There is a risk of account suspension.**
+
+</details>
+
+<details>
+<summary><b>Why are some quests skipped?</b></summary>
+
+Some quests may not be supported or have expired. The tool only processes active and incomplete quests.
 
 </details>
 
 ---
 
-## 📊 Thống kê dự án
+## 📊 Project Stats
 
 <p align="center">
   <a href="https://github.com/LongHip12/Discord-Auto-Quest/stargazers">
     <img src="https://img.shields.io/github/stars/LongHip12/Discord-Auto-Quest?style=for-the-badge&logo=github&color=f0e68c" alt="Stars"/>
   </a>
-  <a href="https://github.com/LongHip12.Discord-Auto-Quests/network/members">
+  <a href="https://github.com/LongHip12/Discord-Auto-Quest/network/members">
     <img src="https://img.shields.io/github/forks/LongHip12/Discord-Auto-Quest?style=for-the-badge&logo=github&color=87ceeb" alt="Forks"/>
   </a>
   <a href="https://github.com/LongHip12/Discord-Auto-Quest/issues">
@@ -130,7 +133,7 @@ Một số quest có thể chưa được hỗ trợ hoặc đã hết hạn. To
 
 ---
 
-## 👨‍💻 Tác giả
+## 👨‍💻 Author
 
 <p align="center">
   <a href="https://nguyenmanhhieu.info.vn/">
@@ -138,21 +141,21 @@ Một số quest có thể chưa được hỗ trợ hoặc đã hết hạn. To
   </a>
 </p>
 
-| | Thông tin |
+| | Info |
 |---|---|
-| 👤 **Tên** | **Nguyễn Hoàng Long** |
-| 🌐 **Website** | [lonelyhub.onrender.com](https://lonelyhub.onrender.com) |
-| 🛠️ **Dự án** | Lonely Hub — Discord Quest Auto Claim |
+| 👤 **Name** | **Nguyễn Hoàng Long** |
+| 🌐 **Website** | https://lonelyhub.onrender.com |
+| 🛠️ **Project** | Lonely Hub — Discord Quest Auto Claim |
 
-> 💬 Nếu bạn muốn sử dụng source code này cho mục đích cá nhân hoặc thương mại, vui lòng **liên hệ tác giả** để xin phép tại [nguyenmanhhieu.info.vn](https://nguyenmanhhieu.info.vn/).
+> 💬 If you want to use this source code for personal or commercial purposes, please **contact the author** for permission.
 
 ---
 
-## 📜 Bản quyền
+## 📜 License
 
 Copyright © 2024-2026 **LongHip12**. All rights reserved.
 
-Xem chi tiết tại file [LICENSE](./LICENSE).
+See details in the LICENSE file.
 
 ---
 
