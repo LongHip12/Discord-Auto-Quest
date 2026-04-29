@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lonely Hub — Settings</title>
+{% include '_base_style.html' %}
+<style>
+main{flex:1;padding:28px 20px;max-width:900px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:20px}
+.settings-section{display:flex;flex-direction:column;gap:10px}
+.section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dim);padding-left:2px}
+.setting-row{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;transition:border-color .15s}
+.setting-row:hover{border-color:var(--border-hi)}
+.setting-info{flex:1;min-width:0}
+.setting-title{font-size:14px;font-weight:600;color:var(--text)}
+.setting-desc{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;border-radius:12px;background:var(--bg-3);border:1px solid var(--border);transition:background .2s,border-color .2s;cursor:pointer}
+.toggle input:checked + .toggle-track{background:rgba(250,80,80,0.25);border-color:rgba(250,80,80,0.4)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.toggle input:checked ~ .toggle-thumb{transform:translateX(20px);background:var(--red);box-shadow:0 0 8px var(--red-glow)}
+.info-box{background:rgba(250,80,80,0.05);border:1px solid rgba(250,80,80,0.15);border-radius:14px;padding:16px 20px;display:flex;gap:12px;align-items:flex-start}
+.info-box svg{width:18px;height:18px;stroke:var(--red);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;margin-top:1px}
+.info-box p{font-size:13px;color:var(--muted);line-height:1.6}
+.version-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:var(--bg-2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--muted);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon"><img src="https://i.imgur.com/xY7M2iE.jpeg" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"></div>
+        <span class="brand-name">Lonely <span>Hub</span></span>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <nav class="nav-pill" id="nav-pill">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logs">Logs</a>
+        <a href="/accountmanager">Accounts</a>
+        <a href="/settings" class="active">Settings</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="info-box">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>Settings are saved locally in your browser. They persist across sessions until you clear browser data.</p>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-label">Dashboard</div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Auto-scroll Logs</div>
+          <div class="setting-desc">Automatically scroll to the bottom when new log entries appear</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="s-autoscroll" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Toast Notifications</div>
+          <div class="setting-desc">Show pop-up notifications for quest events and state changes</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="s-toasts" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Compact Log View</div>
+          <div class="setting-desc">Show more log entries by reducing line height in the log panel</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="s-compact">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-label">Data</div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Clear Saved Accounts</div>
+          <div class="setting-desc">Remove all locally stored account data from this browser</div>
+        </div>
+        <button class="btn btn-danger btn-sm" id="btn-clear-acc">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+          Clear
+        </button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Export Account List</div>
+          <div class="setting-desc">Download your saved accounts as a JSON file for backup</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-export">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="section-label">About</div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Lonely Hub</div>
+          <div class="setting-desc">Discord Auto Quest Tool — for educational purposes only</div>
+        </div>
+        <span class="version-badge">v1.0.0</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-host" class="toast-host"></div>
+{% include '_base_js.html' %}
+<script>
+const SETTINGS_KEY = 'lonely_hub_settings_v1';
+const STORE_KEY = 'lonely_hub_accounts_v1';
+
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveSettings(s) { localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }
+
+const defaults = { autoscroll: true, toasts: true, compact: false };
+const settings = { ...defaults, ...loadSettings() };
+
+['autoscroll','toasts','compact'].forEach(k => {
+  const el = document.getElementById('s-' + k);
+  if (el) {
+    el.checked = !!settings[k];
+    el.addEventListener('change', () => {
+      settings[k] = el.checked;
+      saveSettings(settings);
+      window.toast('Setting saved', 'success');
+    });
+  }
+});
+
+document.getElementById('btn-clear-acc').addEventListener('click', () => {
+  if (!confirm('Remove all saved accounts from this browser?')) return;
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem('lonely_hub_selected_v1');
+  window.toast('All accounts cleared', 'success');
+});
+
+document.getElementById('btn-export').addEventListener('click', () => {
+  const data = localStorage.getItem(STORE_KEY) || '[]';
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'lonely_hub_accounts.json';
+  a.click();
+  window.toast('Accounts exported', 'success');
+});
+</script>
+</body>
+</html>
