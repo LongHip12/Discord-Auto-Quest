@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lonely Hub — Dashboard</title>
+{% include '_base_style.html' %}
+<style>
+main{flex:1;padding:28px 20px;max-width:1400px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:20px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat-card{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;transition:border-color .2s,transform .15s}
+.stat-card:hover{border-color:var(--border-hi);transform:translateY(-1px)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--red),transparent)}
+.stat-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--dim)}
+.stat-val{font-size:22px;font-weight:700;color:var(--text);font-family:var(--mono);line-height:1.2}
+.stat-sub{font-size:12px;color:var(--muted)}
+.content-grid{display:grid;grid-template-columns:1.1fr 1.6fr;gap:16px;flex:1}
+@media(max-width:1000px){.content-grid{grid-template-columns:1fr}}
+.acc-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;padding-right:4px}
+.acc-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+  background:var(--bg-2);border:1px solid var(--border);cursor:pointer;
+  transition:border-color .15s,background .15s,transform .1s;position:relative;overflow:hidden}
+.acc-item:hover{border-color:var(--border-hi);background:var(--bg-3)}
+.acc-item.selected{border-color:rgba(250,80,80,0.4);background:rgba(250,80,80,0.06)}
+.acc-item.selected::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);border-radius:0 2px 2px 0}
+.acc-avatar{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,var(--red),#c03030);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;color:#fff;flex-shrink:0;background-size:cover;background-position:center}
+.acc-name{font-size:14px;font-weight:600;color:var(--text)}
+.acc-sub{font-size:12px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+.acc-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-left:auto;
+  display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s}
+.acc-item.selected .acc-radio{border-color:var(--red);background:var(--red)}
+.acc-item.selected .acc-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.live-box{display:flex;flex-direction:column;gap:14px}
+.user-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:rgba(250,80,80,0.05);border:1px solid rgba(250,80,80,0.15)}
+.user-av{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--red),#c03030);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#fff;flex-shrink:0;background-size:cover;background-position:center}
+.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini-card{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.mini-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--dim)}
+.mini-val{font-size:14px;font-weight:600;color:var(--text);margin-top:6px;font-family:var(--mono);word-break:break-word;min-height:1.4em}
+.console-wrap{flex:1;display:flex;flex-direction:column;gap:8px}
+.console-bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+pre.console{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:14px;
+  height:220px;overflow-y:auto;font-size:13px;font-family:var(--mono);line-height:1.65;
+  color:#c8b8b8;white-space:pre-wrap;word-break:break-word}
+pre.console::-webkit-scrollbar{width:5px}
+pre.console::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:99px}
+.log-line{display:block;padding:1px 0}
+.log-info{color:#c8b8b8}
+.log-warning{color:#fbbf24}
+.log-error{color:#f87171}
+.empty-state{text-align:center;padding:32px 20px;color:var(--dim)}
+.empty-state svg{width:40px;height:40px;stroke:var(--dim);fill:none;stroke-width:1.5;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon"><img src="{{ imgur_url }}" alt="logo" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"></div>
+        <span class="brand-name">Lonely <span>Hub</span></span>
+      </div>
+      <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <nav class="nav-pill" id="nav-pill">
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/logs">Logs</a>
+        <a href="/accountmanager">Accounts</a>
+        <a href="/settings">Settings</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-lbl">Status</div>
+        <div class="stat-val" id="st-running">Idle</div>
+        <div class="stat-sub">Current state</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Active Account</div>
+        <div class="stat-val" id="st-user" style="font-size:15px">—</div>
+        <div class="stat-sub">Running as</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Current Quest</div>
+        <div class="stat-val" id="st-quest" style="font-size:15px">—</div>
+        <div class="stat-sub">In progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Log Entries</div>
+        <div class="stat-val" id="st-logs">0</div>
+        <div class="stat-sub">Total messages</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Choose Account</span>
+          <a href="/accountmanager" class="btn btn-ghost btn-sm">Manage</a>
+        </div>
+        <div class="card-body">
+          <div class="acc-list" id="acc-list" style="display:none"></div>
+          <div id="acc-empty" class="empty-state" style="display:none">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <p>No accounts saved.<br>Add one in Account Manager.</p>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-red" id="run-btn" disabled>
+              <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Quest
+            </button>
+            <button class="btn btn-ghost" id="stop-btn">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              Stop
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Live Status</span>
+          <span class="badge badge-muted" id="state-badge">
+            <span class="dot-pulse"></span>
+            <span id="state-label">Idle</span>
+          </span>
+        </div>
+        <div class="card-body live-box">
+          <div id="user-area"></div>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <div class="mini-lbl">Quest Name</div>
+              <div class="mini-val" id="quest-name">—</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-lbl">Quest Status</div>
+              <div class="mini-val" id="quest-status">Not running</div>
+            </div>
+          </div>
+          <div class="console-wrap">
+            <div class="console-bar">
+              <span class="text-sm text-muted">Recent Logs</span>
+              <a href="/logs" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            <pre class="console" id="logs"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast-host" class="toast-host"></div>
+{% include '_base_js.html' %}
+<script>
+const STORE_KEY = "lonely_hub_accounts_v1";
+const SEL_KEY = "lonely_hub_selected_v1";
+function loadAccounts() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); } catch(e) { return []; } }
+function initial(a) { return ((a.global_name || a.username || "?") + "").trim().charAt(0).toUpperCase(); }
+function avatarBg(a) { return a.avatar && a.user_id ? `background-image:url('https://cdn.discordapp.com/avatars/${a.user_id}/${a.avatar}.png?size=64')` : ''; }
+
+const accList = document.getElementById('acc-list');
+const accEmpty = document.getElementById('acc-empty');
+const runBtn = document.getElementById('run-btn');
+const stopBtn = document.getElementById('stop-btn');
+let accounts = [], selectedId = localStorage.getItem(SEL_KEY);
+
+function renderAccounts() {
+  accounts = loadAccounts();
+  if (!accounts.length) {
+    accList.style.display = 'none'; accEmpty.style.display = 'block'; runBtn.disabled = true; return;
+  }
+  if (!accounts.find(a => a.id === selectedId)) { selectedId = accounts[0].id; localStorage.setItem(SEL_KEY, selectedId); }
+  accList.style.display = 'flex'; accEmpty.style.display = 'none'; runBtn.disabled = false;
+  accList.innerHTML = accounts.map(a => `
+    <div class="acc-item ${a.id === selectedId ? 'selected' : ''}" data-id="${a.id}">
+      <div class="acc-avatar" style="${avatarBg(a)}">${a.avatar && a.user_id ? '' : initial(a)}</div>
+      <div><div class="acc-name"></div><div class="acc-sub"></div></div>
+      <div class="acc-radio"></div>
+    </div>`).join('');
+  accList.querySelectorAll('.acc-item').forEach((el, i) => {
+    el.querySelector('.acc-name').textContent = accounts[i].global_name || accounts[i].username || 'Unknown';
+    el.querySelector('.acc-sub').textContent = '@' + (accounts[i].username || '?');
+    el.addEventListener('click', () => {
+      selectedId = el.dataset.id; localStorage.setItem(SEL_KEY, selectedId);
+      accList.querySelectorAll('.acc-item').forEach(e => e.classList.toggle('selected', e.dataset.id === selectedId));
+    });
+  });
+}
+renderAccounts();
+window.addEventListener('storage', e => { if (e.key === STORE_KEY) renderAccounts(); });
+
+runBtn.addEventListener('click', async () => {
+  const acc = accounts.find(a => a.id === selectedId);
+  if (!acc) { window.toast('Please select an account first', 'warning'); return; }
+  runBtn.disabled = true;
+  const fd = new FormData();
+  ['token','username','user_id','global_name','avatar'].forEach(k => fd.append(k, acc[k] || ''));
+  try {
+    const r = await fetch('/start', { method: 'POST', body: fd });
+    const j = await r.json();
+    if (!j.ok) window.toast(j.error || 'Failed to start', 'error');
+    else window.toast('Auto Quest started successfully', 'success');
+  } catch(e) { window.toast('Network error: ' + e.message, 'error'); }
+  finally { runBtn.disabled = !accounts.length; }
+});
+
+stopBtn.addEventListener('click', async () => {
+  await fetch('/stop', { method: 'POST' });
+  window.toast('Stop signal sent', 'warning');
+});
+
+function renderUser(u) {
+  const area = document.getElementById('user-area');
+  if (!u) { area.innerHTML = ''; return; }
+  const av = (u.avatar && u.id) ? `background-image:url('https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64');background-size:cover;background-position:center` : '';
+  const txt = (u.avatar && u.id) ? '' : (u.global_name || u.username || '?').charAt(0).toUpperCase();
+  area.innerHTML = `<div class="user-card"><div class="user-av" style="${av}">${txt}</div><div><div style="font-weight:700"></div><div class="text-sm text-muted mono"></div></div></div>`;
+  area.querySelector('div[style] + div > div').textContent = u.global_name || u.username || 'Unknown';
+  area.querySelector('.mono').textContent = 'ID: ' + (u.id || '?');
+}
+
+let prevRunning = null, lastLog = '';
+async function tick() {
+  try {
+    const j = await (await fetch('/status')).json();
+    const running = !!j.running;
+    document.getElementById('st-running').textContent = running ? 'Running' : 'Idle';
+    document.getElementById('st-user').textContent = j.user ? (j.user.global_name || j.user.username || '—') : '—';
+    document.getElementById('st-quest').textContent = j.current_quest || '—';
+    document.getElementById('st-logs').textContent = (j.logs || []).length;
+    const badge = document.getElementById('state-badge');
+    badge.className = 'badge ' + (running ? 'badge-green' : 'badge-muted');
+    document.getElementById('state-label').textContent = running ? 'Running' : 'Idle';
+    if (prevRunning !== null && prevRunning && !running) window.toast('Auto Quest finished', 'success');
+    prevRunning = running;
+    renderUser(j.user);
+    document.getElementById('quest-name').textContent = j.current_quest || '—';
+    document.getElementById('quest-status').textContent = j.current_status || '—';
+    const logs = j.logs || [];
+    const logEl = document.getElementById('logs');
+    const txt = logs.slice(-50).map(l => {
+      const entry = typeof l === 'object' ? l : { msg: l, level: 'info' };
+      return `<span class="log-line log-${entry.level || 'info'}">${escHtml(entry.msg)}</span>`;
+    }).join('\n');
+    if (txt !== lastLog) { logEl.innerHTML = txt; logEl.scrollTop = logEl.scrollHeight; lastLog = txt; }
+  } catch(e) {}
+}
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+setInterval(tick, 10000); tick();
+</script>
+</body>
+</html>
