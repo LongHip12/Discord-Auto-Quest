@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/LonelyHub-v2.0.0-blueviolet?style=for-the-badge&logo=discord&logoColor=white" alt="Version"/>
-  <img src="https://img.shields.io/badge/Python-%3E%3D18-339933?style=for-the-badge&logo=pythondotorg&logoColor=white" alt="Node"/>
+  <img src="https://img.shields.io/badge/Python-%3E%3D3.13-339933?style=for-the-badge&logo=python&logoColor=white" alt="Node"/>
   <img src="https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge" alt="License"/>
 </p>
 
